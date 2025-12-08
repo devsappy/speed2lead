@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
+import DarkVeil from '../components/DarkVeil';
 import './HomePage.css';
 
 const HomePage = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     phoneNumber: '',
-    emailAddress: ''
+    emailAddress: '',
+    serviceNeeded: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -22,17 +23,29 @@ const HomePage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
+
+    try {
+      await fetch('https://aivctalent.app.n8n.cloud/webhook-test/lead-intake', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: JSON.stringify(formData),
+      });
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setIsSubmitted(true);
+    }
   };
 
   return (
     <div className="home-page">
-      {/* Navbar removed */}
-
       {/* Hero Section with Video Background */}
-      <section className="hero-section">
+      <section className="hero-section" id="home">
         <div className="video-background">
           <video autoPlay muted loop playsInline>
             <source src="/bgv.mp4" type="video/mp4" />
@@ -52,6 +65,9 @@ const HomePage = () => {
 
       {/* Form Section */}
       <section className="form-section" id="form-section">
+        <div className="darkveil-background">
+          <DarkVeil speed={0.3} />
+        </div>
 
         {isSubmitted ? (
           <div className="thanks-container">
@@ -90,6 +106,17 @@ const HomePage = () => {
                   id="emailAddress"
                   name="emailAddress"
                   value={formData.emailAddress}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="serviceNeeded">Service Needed</label>
+                <input
+                  type="text"
+                  id="serviceNeeded"
+                  name="serviceNeeded"
+                  value={formData.serviceNeeded}
                   onChange={handleChange}
                   required
                 />
