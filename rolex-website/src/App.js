@@ -5,19 +5,22 @@ import AboutPage from './pages/AboutPage';
 import DocumentationPage from './pages/DocumentationPage';
 import ResourcesPage from './pages/ResourcesPage';
 import PillNav from './components/PillNav';
+import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
 function App() {
   return (
-    <Router>
-      <PillNav />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/documentation" element={<DocumentationPage />} />
-        <Route path="/resources" element={<ResourcesPage />} />
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <PillNav />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/documentation" element={<DocumentationPage />} />
+          <Route path="/resources" element={<ResourcesPage />} />
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
