@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DarkVeil from '../components/DarkVeil';
 import './HomePage.css';
 
@@ -25,6 +25,17 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
+  const timeoutRef = useRef(null);
+
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const scrollToForm = () => {
     document.getElementById('form-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -103,16 +114,20 @@ const HomePage = () => {
         body: JSON.stringify(formData),
       });
 
-      // Note: If CORS is not enabled on the server, this will fail
-      // In that case, you may need to use a proxy or enable CORS on the backend
-      if (!response.ok && response.status !== 0) {
-        throw new Error(`Server error: ${response.status}`);
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
       }
 
       setIsSubmitted(true);
       
       // Reset form after 5 seconds
-      setTimeout(() => {
+      // Clear any existing timeout before setting a new one
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      timeoutRef.current = setTimeout(() => {
         setFormData({
           fullName: '',
           phoneNumber: '',
@@ -123,6 +138,7 @@ const HomePage = () => {
         setIsSubmitted(false);
         setError(null);
         setValidationErrors({});
+        timeoutRef.current = null;
       }, 5000);
     } catch (error) {
       console.error('Error submitting form:', error);
